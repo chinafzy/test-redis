@@ -1,8 +1,9 @@
 
 spring:
   redis:
+    password: h4MBayNoUblgki5HrX
     jedis:
       pool:
-        max-active: 10        
+        max-active: 100       
         min-idle: 6
 

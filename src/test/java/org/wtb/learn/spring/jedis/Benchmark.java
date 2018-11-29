@@ -2,11 +2,9 @@ package org.wtb.learn.spring.jedis;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.IntStream;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -41,12 +39,12 @@ public class Benchmark {
             executor.submit(() -> {
                 try {
                     starter.await();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
 
-                for (int j = 0; j < repeat_per_task; j++) {
-                    ops.set(i2 + "key" + j, str);
+                    for (int j = 0; j < repeat_per_task; j++) {
+                        ops.set(i2 + "key" + j, str);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             });
         }
