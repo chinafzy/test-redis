@@ -6,4 +6,6 @@ spring:
       pool:
         max-active: 100       
         min-idle: 6
+    timeout: 12s
+      
 

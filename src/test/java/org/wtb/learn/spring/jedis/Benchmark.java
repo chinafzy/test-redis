@@ -38,7 +38,7 @@ public class Benchmark {
 
     @Test
     public void test() throws InterruptedException {
-        final long task_count = 30, repeat_per_task = 200_000;
+        final long task_count = 20, repeat_per_task = 200_000;
         final long all_count = task_count * repeat_per_task;
 
         ExecutorService executor = buildExecutor((int) task_count, 1000);
@@ -47,13 +47,17 @@ public class Benchmark {
 
         CountDownLatch starter = new CountDownLatch(1);
         final Counter counter = new Counter().addNotifier(new Counter.Notifier() {
+            final int step = 100_000;
             long last = System.currentTimeMillis();
+            long start = last;
 
             @Override
             public void notify(long count) {
-                if (count % 100_000 == 0) {
+                if (count % step == 0) {
                     long now = System.currentTimeMillis();
-                    System.out.printf(" %, 5d : %, 12d \n", now - last, count);
+                    long used = now - last, allUsed = now - start;
+                    System.out.printf("%, 10d : %, 5d / %, 7d  QPS(s) : %, 5d / % ,5d \n", count, used, allUsed,
+                            step * 1000 / used, count * 1000 / allUsed);
                     last = now;
                 }
             }
@@ -67,7 +71,7 @@ public class Benchmark {
 
                     for (int j = 0; j < repeat_per_task; j++) {
                         String key = i2 + "key" + j;
-                        ops.set(key, arr[j % arr.length]);
+//                        ops.set(key, arr[j % arr.length]);
                         ops.get(key);
                         counter.increase(1);
                     }
