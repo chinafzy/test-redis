@@ -58,6 +58,7 @@ public class Benchmark {
                 }
             }
         });
+
         for (int i = 0; i < task_count; i++) {
             final int i2 = i;
             executor.submit(() -> {
@@ -65,7 +66,9 @@ public class Benchmark {
                     starter.await();
 
                     for (int j = 0; j < repeat_per_task; j++) {
-                        ops.set(i2 + "key" + j, arr[j % arr.length]);
+                        String key = i2 + "key" + j;
+                        ops.set(key, arr[j % arr.length]);
+                        ops.get(key);
                         counter.increase(1);
                     }
                 } catch (Exception e) {
