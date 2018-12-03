@@ -1,7 +1,7 @@
 
 spring:
   redis:
-    password: h4MBayNoUblgki5HrX
+#    password: h4MBayNoUblgki5HrX
     jedis:
       pool:
         max-active: 100       
