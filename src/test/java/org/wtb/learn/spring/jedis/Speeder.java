@@ -1,6 +1,7 @@
 package org.wtb.learn.spring.jedis;
 
 import java.io.PrintStream;
+import java.util.Collection;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -24,8 +25,28 @@ public class Speeder {
         int[] values = PercentCalculator.counts(records, percents);
         pw.printf("%10s %12s \n", "Percent(%)", "Use Time(ms)");
         for (int i = 0; i < percents.length; i++) {
-            pw.printf("% 10.2f % 12d \n", percents[i] * 100, values[i]);
+            pw.printf("% 10.3f % 12d \n", percents[i] * 100, values[i]);
         }
+    }
+
+    public static Speeder merge(Collection<Speeder> speeders) {
+
+        return speeders.stream().reduce(new Speeder(), (Speeder ret, Speeder speeder) -> {
+            speeder
+            .records
+            .entrySet()
+            .forEach(ent -> {
+                Integer k = ent.getKey();
+                AtomicInteger v = ret.records.get(k);
+                if (v == null) {
+                    ret.records.put(k, v = new AtomicInteger());
+                }
+                v.addAndGet(ent.getValue().get());
+            });
+
+            return ret;
+        });
+
     }
 
     public static void main(String[] args) {

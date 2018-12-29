@@ -8,10 +8,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class Task1 {
 
-    @Autowired
-    JedisConnectionFactory connFactory;
+//    @Autowired
+//    JedisConnectionFactory connFactory;
 
-    @Autowired
+//    @Autowired
     public void needTlp(StringRedisTemplate tpl) {
         System.out.println(tpl);
         tpl.opsForValue().get("123");

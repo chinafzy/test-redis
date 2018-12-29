@@ -1,11 +1,23 @@
 
-spring:
+
+wtb:
   redis:
-#    password: h4MBayNoUblgki5HrX
-    jedis:
-      pool:
-        max-active: 100       
-        min-idle: 6
-    timeout: 12s
+    pool:
+      max-total: 100
+      min-idle: 20
       
+    single: 
+      url : redis://localhost:6379/
+
+    shard:
+      urls:
+        - redis://localhost:6379/
+        - redis://localhost:7379/
+        - redis://localhost:8379/
+        
+  test:
+    number: 2000_000
+    concurrency: 10
+    value-size: 2_000
+    summary-step: 100_000
 
