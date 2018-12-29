@@ -95,45 +95,49 @@ public class Benchmark {
 
         long[][] ranges = splitRanges(all_count, task_count);
         Arrays.asList(ranges).forEach(range -> executor.submit(() -> {
-
-            final JedisCommands cmds = (JedisCommands) spring
-                    .getBean(testConf.shardMode() ? Conf.CMDS_SHARD : Conf.CMDS_SINGLE, Pool.class).getResource();
-
-            final long startPos = range[0], endPos = range[1];
-            final Speeder speeder = new Speeder();
-            speeders.add(speeder);
-
-            final AtomicLong successCount = new AtomicLong();
-            successCounts.add(successCount);
-            final AtomicLong failCount = new AtomicLong();
-            failCounts.add(failCount);
-
-            // warm up the connection
-            IntStream.range(0, 1000).forEach(i -> cmds.get("k" + i));
-
             try {
-                kickoff.await();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-                return;
-            }
 
-            KeysMaker.make("key_", startPos, endPos).forEach(key -> {
-                long stampx = System.currentTimeMillis();
+                final JedisCommands cmds = (JedisCommands) spring
+                        .getBean(testConf.shardMode() ? Conf.CMDS_SHARD : Conf.CMDS_SINGLE, Pool.class).getResource();
+
+                final long startPos = range[0], endPos = range[1];
+                final Speeder speeder = new Speeder();
+                speeders.add(speeder);
+
+                final AtomicLong successCount = new AtomicLong();
+                successCounts.add(successCount);
+                final AtomicLong failCount = new AtomicLong();
+                failCounts.add(failCount);
+
+                // warm up the connection
+                IntStream.range(0, 1000).forEach(i -> cmds.get("k" + i));
 
                 try {
-                    cmds.set(key, str);
-                    //                    cmds.get(key);
-
-                    int used = (int) (System.currentTimeMillis() - stampx);
-                    speeder.record(used);
-                    successCount.incrementAndGet();
-                } catch (Throwable tr) {
-                    failCount.incrementAndGet();
+                    kickoff.await();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                    return;
                 }
 
-                counter.increase(1);
-            });
+                KeysMaker.make("key_", startPos, endPos).forEach(key -> {
+                    long stampx = System.currentTimeMillis();
+
+                    try {
+                        cmds.set(key, str);
+                        //                    cmds.get(key);
+
+                        int used = (int) (System.currentTimeMillis() - stampx);
+                        speeder.record(used);
+                        successCount.incrementAndGet();
+                    } catch (Throwable tr) {
+                        failCount.incrementAndGet();
+                    }
+
+                    counter.increase(1);
+                });
+            } catch (Throwable tr) {
+                tr.printStackTrace();
+            }
 
         }));
 
