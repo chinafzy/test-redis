@@ -1,9 +1,7 @@
 package org.wtb.learn.spring.jedis;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
@@ -11,7 +9,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.IntStream;
@@ -93,8 +90,8 @@ public class Benchmark {
 
         CountDownLatch kickoff = new CountDownLatch(1);
         List<Speeder> speeders = new CopyOnWriteArrayList<>();
-        List<AtomicLong> successCounts = new ArrayList<>();
-        List<AtomicLong> failCounts = new ArrayList<>();
+        List<AtomicLong> successCounts = new CopyOnWriteArrayList<>();
+        List<AtomicLong> failCounts = new CopyOnWriteArrayList<>();
 
         long[][] ranges = splitRanges(all_count, task_count);
         Arrays.asList(ranges).forEach(range -> executor.submit(() -> {

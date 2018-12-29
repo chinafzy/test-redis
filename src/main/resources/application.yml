@@ -7,13 +7,14 @@ wtb:
       min-idle: 20
       
     single: 
-      url : redis://localhost:6379/
+#      url : redis://localhost:6379/
+      url : redis://:GnUNkSzxMy0zbPH@r-bp16e7dbe47100e4.redis.rds.aliyuncs.com:6379/
 
-    shard:
-      urls:
-        - redis://localhost:6379/
-        - redis://localhost:7379/
-        - redis://localhost:8379/
+#    shard:
+#      urls:
+#        - redis://localhost:6379/
+#        - redis://localhost:7379/
+#        - redis://localhost:8379/
         
   test:
     number: 2000_000
