@@ -3,22 +3,30 @@
 wtb:
   redis:
     pool:
-      max-total: 100
+      max-total: 1000
       min-idle: 20
       
     single: 
 #      url : redis://localhost:6379/
-      url : redis://:GnUNkSzxMy0zbPH@r-bp16e7dbe47100e4.redis.rds.aliyuncs.com:6379/
+#      url : redis://:GnUNkSzxMy0zbPH0@r-bp16e7dbe47100e4.redis.rds.aliyuncs.com:6379/
+      url : redis://:soy4xVhAWW1kVXYS@172.16.15.125:6379/
 
-#    shard:
-#      urls:
-#        - redis://localhost:6379/
+    shard:
+      urls:
+        - redis://:soy4xVhAWW1kVXYS@172.16.15.125:6379/
+        - redis://:soy4xVhAWW1kVXYS@172.16.15.125:7379/
+        - redis://:soy4xVhAWW1kVXYS@172.16.15.125:8379/
+#        - redis://:soy4xVhAWW1kVXYS@172.16.15.125:9379/
+#        - redis://:soy4xVhAWW1kVXYS@172.16.15.125:9380/
+#        - redis://:soy4xVhAWW1kVXYS@172.16.15.125:9381/
+#        - redis://:soy4xVhAWW1kVXYS@172.16.15.125:9382/
+#        - redis://:soy4xVhAWW1kVXYS@172.16.15.125:9383/
 #        - redis://localhost:7379/
 #        - redis://localhost:8379/
         
   test:
-    number: 2000_000
-    concurrency: 10
-    value-size: 2_000
+    number: 9_000_000
+    concurrency: 400
+    value-size: 1_000
     summary-step: 100_000
 
