@@ -14,6 +14,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.IntConsumer;
+import java.util.function.LongUnaryOperator;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 
@@ -25,7 +26,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.StringUtils;
 
-import lombok.RequiredArgsConstructor;
 import redis.clients.jedis.JedisCommands;
 import redis.clients.util.Pool;
 
@@ -153,8 +153,8 @@ public class Benchmark2 {
 
         class TestRedis extends TestTask {
 
-            public TestRedis(Runnable readyNotifier, CountDownLatch kickOff, IntConsumer speeder, IntConsumer successCount,
-                    IntConsumer failCount) {
+            public TestRedis(Runnable readyNotifier, CountDownLatch kickOff, IntConsumer speeder, LongUnaryOperator successCount,
+                    LongUnaryOperator failCount) {
                 super(readyNotifier, kickOff, speeder, successCount, failCount);
             }
 
@@ -192,12 +192,12 @@ public class Benchmark2 {
                         int used = (int) (System.currentTimeMillis() - stampx);
                         speeder.accept(used);
 
-                        successCount.accept(1);
+                        successCount.applyAsLong(1);
                     } catch (Throwable tr) {
                         tr.printStackTrace();
-                        failCount.accept(1);
+                        failCount.applyAsLong(1);
                     } finally {
-                        counter.increase(1);                        
+                        counter.increase(1);
                     }
                 });
             }
@@ -214,8 +214,8 @@ public class Benchmark2 {
             AtomicLong failCount = new AtomicLong();
             failCounts.add(failCount);
 
-            executor.submit(new TestRedis(tasksReady::countDown, kickOff, speeder::record, successCount::incrementAndGet,
-                    failCount::incrementAndGet));
+            executor.submit(new TestRedis(tasksReady::countDown, kickOff, speeder::record, successCount::addAndGet,
+                    failCount::addAndGet));
         });
 
         // wait until all tasks are ready.

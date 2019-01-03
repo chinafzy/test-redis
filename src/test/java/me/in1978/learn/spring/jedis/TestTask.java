@@ -1,8 +1,8 @@
 package me.in1978.learn.spring.jedis;
 
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.IntConsumer;
+import java.util.function.LongUnaryOperator;
 
 import lombok.RequiredArgsConstructor;
 
@@ -20,7 +20,7 @@ public abstract class TestTask implements Runnable {
 
     final protected IntConsumer speeder;
     
-    final protected IntConsumer successCount, failCount;
+    final protected LongUnaryOperator successCount, failCount;
 
     @Override
     public void run() {
