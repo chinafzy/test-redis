@@ -1,4 +1,4 @@
-package org.wtb.learn.spring.jedis;
+package me.in1978.learn.spring.jedis;
 
 import java.util.Arrays;
 import java.util.List;
@@ -16,15 +16,11 @@ import java.util.stream.IntStream;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
-import org.springframework.stereotype.Component;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.StringUtils;
 
-import lombok.Data;
 import redis.clients.jedis.JedisCommands;
 import redis.clients.util.Pool;
 
@@ -59,28 +55,7 @@ public class Benchmark {
         System.out.printf("number: %,d; concurrency: %d; value_size: %,d; \n", //
                 all_count, task_count, testConf.getValueSize());
 
-        class PeriodPrinter implements Counter.Notifier {
-            final int step = testConf.getSummaryStep();
-            long last, start;
-
-            @Override
-            public void notify(long count) {
-                if (count % step != 0)
-                    return;
-
-                long now = System.currentTimeMillis();
-                long used = now - last, allUsed = now - start;
-                System.out.printf("%, 10d : %, 5d / %, 7d  QPS(s) : %, 5d / % ,5d \n", count, used, allUsed, step * 1000 / used,
-                        count * 1000 / allUsed);
-                last = now;
-            }
-
-            public void reset() {
-                start = last = System.currentTimeMillis();
-            }
-
-        }
-        PeriodPrinter periodPrinter = new PeriodPrinter();
+        PeriodPrinter periodPrinter = new PeriodPrinter(testConf.getSummaryStep());
 
         final Counter counter = new Counter().addNotifier(periodPrinter);
 
@@ -151,8 +126,8 @@ public class Benchmark {
 
         long used = System.currentTimeMillis() - stamp1;
 
-        long successCount = successCounts.stream().mapToLong(l -> l.get()).sum();
-        long failCount = failCounts.stream().mapToLong(l -> l.get()).sum();
+        long successCount = successCounts.stream().mapToLong(AtomicLong::get).sum();
+        long failCount = failCounts.stream().mapToLong(AtomicLong::get).sum();
 
         System.out.printf("%,d in %,d ms; qps = %,d ; success(%,d); fail(%,d) \n", all_count, used,
                 (((long) all_count) * 1000) / used, successCount, failCount);
@@ -223,41 +198,6 @@ public class Benchmark {
                 e.printStackTrace();
             }
         });
-    }
-
-}
-
-@ConfigurationProperties("wtb.test")
-@Component
-@Data
-class TestConf {
-
-    @ConfigurationProperties("wtb.redis.shard")
-    @Component
-    @Data
-    // a helpful skill for injecting multiple values by @ConfigurationProperties since @Value does not work perfect here.
-    private static class SkillA {
-        List<String> urls;
-    }
-
-    private int number = 300_000;
-    private int concurrency = 3;
-    private int valueSize = 1024;
-
-    private int summaryStep = 100_000;
-
-    @Value("${wtb.redis.single.url:}")
-    private String singleUrl;
-
-    @Autowired
-    SkillA a;
-
-    public boolean shardMode() {
-        return a.urls != null && !a.urls.isEmpty();
-    }
-
-    public List<String> getShardUrls() {
-        return a.getUrls();
     }
 
 }

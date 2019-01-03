@@ -1,4 +1,4 @@
-package org.wtb.learn.spring.jedis;
+package me.in1978.learn.spring.jedis;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;

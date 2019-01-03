@@ -11,7 +11,7 @@
         <relativePath /> <!-- lookup parent from repository -->
     </parent>
 
-    <groupId>org.wtb</groupId>
+    <groupId>me.in1978</groupId>
     <artifactId>learn-spring-jedis</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 

@@ -1,4 +1,4 @@
-package org.wtb.learn.spring.jedis;
+package me.in1978.learn.spring.jedis;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

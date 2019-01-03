@@ -1,4 +1,4 @@
-package org.wtb.learn.spring.jedis;
+package me.in1978.learn.spring.jedis;
 
 import java.net.URI;
 import java.util.ArrayList;

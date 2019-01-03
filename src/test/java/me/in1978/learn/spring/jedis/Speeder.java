@@ -1,4 +1,4 @@
-package org.wtb.learn.spring.jedis;
+package me.in1978.learn.spring.jedis;
 
 import java.io.PrintStream;
 import java.util.Collection;
@@ -30,12 +30,8 @@ public class Speeder {
     }
 
     public static Speeder merge(Collection<Speeder> speeders) {
-
-        return speeders.stream().reduce(new Speeder(), (Speeder ret, Speeder speeder) -> {
-            speeder
-            .records
-            .entrySet()
-            .forEach(ent -> {
+        return speeders.stream().reduce(new Speeder(), (ret, speeder) -> {
+            speeder.records.entrySet().forEach(ent -> {
                 Integer k = ent.getKey();
                 AtomicInteger v = ret.records.get(k);
                 if (v == null) {
@@ -46,7 +42,6 @@ public class Speeder {
 
             return ret;
         });
-
     }
 
     public static void main(String[] args) {

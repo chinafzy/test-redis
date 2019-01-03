@@ -1,4 +1,4 @@
-package org.wtb.learn.spring.jedis;
+package me.in1978.learn.spring.jedis;
 
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicLong;
@@ -15,6 +15,7 @@ public class Counter {
 
     public Counter addNotifier(Notifier notifier) {
         notifiers.add(notifier);
+
         return this;
     }
 
