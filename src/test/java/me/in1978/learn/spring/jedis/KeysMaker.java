@@ -18,7 +18,6 @@ public class KeysMaker {
         String format = prefix + "%09d";
         return LongStream.range(startInclusive, endExclusive).mapToObj(i -> String.format(format, i));
     }
-    
 
     /**
      * Convert a Stream into BlockingQueue. 

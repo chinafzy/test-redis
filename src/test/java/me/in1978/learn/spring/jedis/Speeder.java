@@ -7,6 +7,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
+/**
+ * 记速器，统计一次次的速度消耗，和统计结果汇总 
+ * <br />
+ * 注意：本身是支持线程安全的，但是在高并发下建议使用每个线程一个实例，然后合并{@link #merge(Collection)}成一个。这样会从数据模型上降低竞态状态。
+ * 
+ * @author zeyufang
+ */
 public class Speeder {
 
     private final ConcurrentHashMap<Integer, AtomicInteger> records = new ConcurrentHashMap<>(1024);
@@ -22,7 +29,7 @@ public class Speeder {
     }
 
     public void printSummary(PrintStream pw, double[] percents) {
-        int[] values = PercentCalculator.counts(records, percents);
+        int[] values = TimePercentCalculator.cal(records, percents);
         pw.printf("%10s %12s \n", "Percent(%)", "Use Time(ms)");
         for (int i = 0; i < percents.length; i++) {
             pw.printf("% 10.3f % 12d \n", percents[i] * 100, values[i]);
@@ -30,17 +37,20 @@ public class Speeder {
     }
 
     public static Speeder merge(Collection<Speeder> speeders) {
-        return speeders.stream().reduce(new Speeder(), (ret, speeder) -> {
+
+        return speeders.stream().reduce(new Speeder(), (dest, speeder) -> {
+
             speeder.records.entrySet().forEach(ent -> {
                 Integer k = ent.getKey();
-                AtomicInteger v = ret.records.get(k);
+                AtomicInteger v = dest.records.get(k);
                 if (v == null) {
-                    ret.records.put(k, v = new AtomicInteger());
+                    dest.records.put(k, v = new AtomicInteger());
                 }
+
                 v.addAndGet(ent.getValue().get());
             });
 
-            return ret;
+            return dest;
         });
     }
 

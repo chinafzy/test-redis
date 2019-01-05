@@ -28,6 +28,10 @@ public class TestConf {
 
     private int summaryStep = 100_000;
 
+    private int summarySpeedStep = 0;
+
+    private double[] printPercents = { .5, .75, .8, .9, .95, .99, .995, .999, .9999, .99999, 1 };
+
     @Value("${wtb.redis.single.url:}")
     private String singleUrl;
 

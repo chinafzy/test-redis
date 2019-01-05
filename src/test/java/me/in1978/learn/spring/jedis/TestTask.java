@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 public abstract class TestTask implements Runnable {
 
     /**
-     * Called on task is ready for next work.
+     * Called when task is ready for next work.
      */
     final protected Runnable readyNotifier;
     /**
@@ -19,11 +19,12 @@ public abstract class TestTask implements Runnable {
     final protected CountDownLatch kickOff;
 
     final protected IntConsumer speeder;
-    
+
     final protected LongUnaryOperator successCount, failCount;
 
     @Override
     public void run() {
+
         prepare();
 
         readyNotifier.run();
@@ -35,9 +36,25 @@ public abstract class TestTask implements Runnable {
             return;
         }
 
-        test();
+        try {
+            test();
+        } finally {
+            tearDown();
+        }
+    }
 
-        tearDown();
+    protected void testOnce(Runnable run) {
+        long stampx = System.currentTimeMillis();
+
+        try {
+            int used = (int) (System.currentTimeMillis() - stampx);
+            speeder.accept(used);
+
+            successCount.applyAsLong(1);
+        } catch (Throwable tr) {
+            tr.printStackTrace();
+            failCount.applyAsLong(1);
+        }
     }
 
     protected void prepare() {

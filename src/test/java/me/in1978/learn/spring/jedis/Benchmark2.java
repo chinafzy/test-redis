@@ -8,11 +8,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.IntConsumer;
 import java.util.function.LongUnaryOperator;
 import java.util.stream.IntStream;
@@ -33,47 +30,11 @@ import redis.clients.util.Pool;
 @SpringBootTest()
 public class Benchmark2 {
 
-    private static final char[] chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".toCharArray();
-
-    private static String buildStr(int len) {
-        StringBuilder buf = new StringBuilder(len);
-        for (int i = 0; i < len; i++) {
-            buf.append(chars[len % chars.length]);
-        }
-        return buf.toString();
-    }
-
-    @SuppressWarnings("unused")
-    private static long[] nextRange(AtomicLong pos, int step, long max) {
-        AtomicReference<long[]> tmp = new AtomicReference<>();
-
-        pos.getAndUpdate((v) -> {
-            long v2 = Math.min(max, v + step);
-            tmp.set(new long[] { v, v2 });
-            return v2;
-        });
-
-        return tmp.get();
-    }
-
     @Autowired
     private ApplicationContext spring;
 
     @Autowired
     private TestConf testConf;
-
-    @SuppressWarnings("unused")
-    private ThreadPoolExecutor buildExecutor(int con, int poolSize) {
-        LinkedBlockingQueue<Runnable> taskQueue = new LinkedBlockingQueue<>(poolSize);
-
-        return new ThreadPoolExecutor(con, con, 1, TimeUnit.HOURS, taskQueue, (task, executor2) -> {
-            try {
-                taskQueue.put(task);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        });
-    }
 
     private BlockingQueue<long[]> ranges(long num, int bufSize, long[] stopFlag) {
 
@@ -106,12 +67,6 @@ public class Benchmark2 {
 
         BlockingQueue<long[]> ret = KeysMaker.asBq(ranges, bufSize, stopFlag);
 
-        //        try {
-        //            Thread.sleep(1000);
-        //        } catch (InterruptedException e) {
-        //            throw new RuntimeException(e);
-        //        }
-
         return ret;
     }
 
@@ -120,9 +75,9 @@ public class Benchmark2 {
 
         //
         // read configuration.
-        //       
         final int task_count = testConf.getConcurrency();
         final int all_count = testConf.getNumber();
+        final double[] percents = testConf.getPrintPercents();
 
         if (testConf.shardMode()) {
             System.out.println("Shard Mode: " + testConf.getShardUrls());
@@ -141,10 +96,18 @@ public class Benchmark2 {
         final Counter counter = new Counter().addNotifier(periodPrinter);
 
         final ExecutorService executor = Executors.newFixedThreadPool(task_count);
-        final String str = buildStr(testConf.getValueSize());
+        final String str = Util.buildStr(testConf.getValueSize());
 
         CountDownLatch kickOff = new CountDownLatch(1);
         List<Speeder> speeders = new CopyOnWriteArrayList<>();
+        if (testConf.getSummarySpeedStep() > 0) {
+            counter.addNotifier((long value) -> {
+                if (value % testConf.getSummarySpeedStep() != 0)
+                    return;
+
+                Speeder.merge(speeders).printSummary(System.out, percents);
+            });
+        }
         List<AtomicLong> successCounts = new CopyOnWriteArrayList<>();
         List<AtomicLong> failCounts = new CopyOnWriteArrayList<>();
 
@@ -240,7 +203,7 @@ public class Benchmark2 {
         Speeder speeder = Speeder.merge(speeders);
         System.out.println();
         System.out.println("Percentage of the requests served within a certain time (ms)");
-        speeder.printSummary(System.out, new double[] { .5, .75, .8, .9, .95, .99, .995, .999, .9999, .99999, 1 });
+        speeder.printSummary(System.out, percents);
     }
 
 }

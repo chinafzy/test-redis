@@ -8,7 +8,6 @@ import java.util.stream.Collectors;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
-import org.springframework.util.StringUtils;
 
 import lombok.Data;
 import redis.clients.jedis.JedisPool;
@@ -27,23 +26,9 @@ public class Conf {
 class RedisSingleConf {
     // redis://user:password@example.com:6379
     private String url = "redis://localhost:6379/";
-    private String host = "localhost";
-    private int port = 6379;
-
-    public void adjustFromUrl() {
-        if (StringUtils.isEmpty(url))
-            return;
-
-        URI uri = URI.create(url);
-        host = uri.getHost();
-        port = uri.getPort();
-
-    }
 
     @Bean(Conf.CMDS_SINGLE)
     public JedisPool jedisPool(JedisPoolConfig poolConfig) {
-        //        adjustFromUrl();
-
         return new JedisPool(poolConfig, URI.create(url));
     }
 

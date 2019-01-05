@@ -19,7 +19,13 @@ public class Counter {
         return this;
     }
 
-    public long increase(int value) {
+    /**
+     * 
+     * @param value
+     * @return
+     * @see AtomicLong#addAndGet(long)
+     */
+    public long increase(long value) {
         long ret = count.addAndGet(value);
         for (Notifier notifier : notifiers) {
             notifier.notify(ret);

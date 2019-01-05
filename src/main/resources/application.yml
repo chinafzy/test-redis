@@ -9,7 +9,7 @@ wtb:
       url : redis://localhost:6379/
 #      url : redis://:GnUNkSzxMy0zbPH0@r-bp16e7dbe47100e4.redis.rds.aliyuncs.com:6379/
 
-    shard:
+#    shard:
       urls:
 #        - redis://:soy4xVhAWW1kVXYS@172.16.15.125@6379/
 #        - redis://:soy4xVhAWW1kVXYS@172.16.15.125@7379/
@@ -28,4 +28,6 @@ wtb:
     concurrency: 20
     value-size: 2_0
     summary-step: 100_000
+    summary-speed-step: 200_000
+    print-percents: .4, .5, .75, .8, .9, .95, .99, .995, .999, .9999, .99999, 1
 
