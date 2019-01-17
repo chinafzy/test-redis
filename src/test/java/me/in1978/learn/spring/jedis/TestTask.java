@@ -49,6 +49,7 @@ public abstract class TestTask implements Runnable {
         try {
             int used = (int) (System.currentTimeMillis() - stampx);
             speeder.accept(used);
+            run.run();
 
             successCount.applyAsLong(1);
         } catch (Throwable tr) {

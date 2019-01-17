@@ -8,7 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 /**
- * 记速器，统计一次次的速度消耗，和统计结果汇总 
+ * 记速器，记录一次次的速度消耗，生成统计结果汇总。
  * <br />
  * 注意：本身是支持线程安全的，但是在高并发下建议使用每个线程一个实例，然后合并{@link #merge(Collection)}成一个。这样会从数据模型上降低竞态状态。
  * 
@@ -30,7 +30,7 @@ public class Speeder {
 
     public void printSummary(PrintStream pw, double[] percents) {
         int[] values = TimePercentCalculator.cal(records, percents);
-        pw.printf("%10s %12s \n", "Percent(%)", "Use Time(ms)");
+        pw.printf("%10s %12s \n", "Percent", "Use Time(ms)");
         for (int i = 0; i < percents.length; i++) {
             pw.printf("% 10.3f % 12d \n", percents[i] * 100, values[i]);
         }

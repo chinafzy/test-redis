@@ -11,23 +11,21 @@ wtb:
 
 #    shard:
       urls:
-#        - redis://:soy4xVhAWW1kVXYS@172.16.15.125@6379/
-#        - redis://:soy4xVhAWW1kVXYS@172.16.15.125@7379/
-#        - redis://:soy4xVhAWW1kVXYS@172.16.15.125@8379/
-#        - redis://:soy4xVhAWW1kVXYS@172.16.15.125@9379/
-#        - redis://:soy4xVhAWW1kVXYS@172.16.15.125@9380/
-#        - redis://:soy4xVhAWW1kVXYS@172.16.15.125@9381/
-#        - redis://:soy4xVhAWW1kVXYS@172.16.15.125@9382/
-#        - redis://:soy4xVhAWW1kVXYS@172.16.15.125@9383/
         - redis://localhost:6379/
         - redis://localhost:7379/
-        - redis://localhost:8379/
+#        - redis://localhost:8379/
         
   test:
-    number: 5_000_000
-    concurrency: 20
-    value-size: 2_0
+    number: 8_000_000
+    concurrency: 40
+    value-size: 2_00
     summary-step: 100_000
-    summary-speed-step: 200_000
-    print-percents: .4, .5, .75, .8, .9, .95, .99, .995, .999, .9999, .99999, 1
+ #   summary-speed-step: 200_000
+    print-percents: >
+      .5, .75, .8, .9,
+      .91, .92, .93, .94, .95, .96, .97, .98, .99, 
+      .991, .992, .993, .994, .995, .996, .997, .998, .999, 
+      .9991, .9992, .9993, .9993, .9994, .9995, .9996, .9997, .9998, .9999, 
+      .99991, .99992, .99993, .99993, .99994, .99995, .99996, .99997, .99998, .99999, 
+      1
 

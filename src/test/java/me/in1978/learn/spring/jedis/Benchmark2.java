@@ -36,7 +36,7 @@ public class Benchmark2 {
     @Autowired
     private TestConf testConf;
 
-    private BlockingQueue<long[]> ranges(long num, int bufSize, long[] stopFlag) {
+    private BlockingQueue<long[]> ranges(long num, int bufSize) {
 
         Iterator<long[]> ranges = new Iterator<long[]>() {
             long pos = num;
@@ -65,18 +65,16 @@ public class Benchmark2 {
             }
         };
 
-        BlockingQueue<long[]> ret = KeysMaker.asBq(ranges, bufSize, stopFlag);
-
-        return ret;
+        return BBQ.fromIterator(ranges, bufSize);
     }
 
     @Test
-    public void run() throws InterruptedException {
+    public void run() {
 
         //
         // read configuration.
-        final int task_count = testConf.getConcurrency();
-        final int all_count = testConf.getNumber();
+        final int concurrency = testConf.getConcurrency();
+        final int number = testConf.getNumber();
         final double[] percents = testConf.getPrintPercents();
 
         if (testConf.shardMode()) {
@@ -90,12 +88,12 @@ public class Benchmark2 {
         }
 
         System.out.printf("number: %,d; concurrency: %d; value_size: %,d; \n", //
-                all_count, task_count, testConf.getValueSize());
+                number, concurrency, testConf.getValueSize());
 
         PeriodPrinter periodPrinter = new PeriodPrinter(testConf.getSummaryStep());
         final Counter counter = new Counter().addNotifier(periodPrinter);
 
-        final ExecutorService executor = Executors.newFixedThreadPool(task_count);
+        final ExecutorService executor = Executors.newFixedThreadPool(concurrency);
         final String str = Util.buildStr(testConf.getValueSize());
 
         CountDownLatch kickOff = new CountDownLatch(1);
@@ -108,11 +106,12 @@ public class Benchmark2 {
                 Speeder.merge(speeders).printSummary(System.out, percents);
             });
         }
+
         List<AtomicLong> successCounts = new CopyOnWriteArrayList<>();
         List<AtomicLong> failCounts = new CopyOnWriteArrayList<>();
 
-        final long[] STOP_RANGE = new long[0];
-        final BlockingQueue<long[]> ranges = ranges(all_count, task_count * 3, STOP_RANGE);
+//        final long[] STOP_RANGE = new long[0];
+        final BlockingQueue<long[]> ranges = ranges(number, concurrency * 3);
 
         class TestRedis extends TestTask {
 
@@ -135,7 +134,7 @@ public class Benchmark2 {
             protected void test() {
                 long[] range;
                 try {
-                    while ((range = ranges.take()) != STOP_RANGE) {
+                    while ((range = ranges.take()) != null) {
                         testRange(range);
                     }
                 } catch (InterruptedException e) {
@@ -167,9 +166,9 @@ public class Benchmark2 {
 
         }
 
-        CountDownLatch tasksReady = new CountDownLatch(task_count);
+        CountDownLatch tasksReady = new CountDownLatch(concurrency);
         // submit test tasks.
-        IntStream.range(0, task_count).forEach(i -> {
+        IntStream.range(0, concurrency).forEach(i -> {
             Speeder speeder = new Speeder();
             speeders.add(speeder);
             AtomicLong successCount = new AtomicLong();
@@ -182,23 +181,33 @@ public class Benchmark2 {
         });
 
         // wait until all tasks are ready.
-        tasksReady.await();
+        try {
+            tasksReady.await();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
 
         long stamp1 = System.currentTimeMillis();
 
         kickOff.countDown();
         periodPrinter.reset();
+        periodPrinter.printHeader();
 
         executor.shutdown();
-        executor.awaitTermination(1, TimeUnit.HOURS);
+        try {
+            executor.awaitTermination(1, TimeUnit.HOURS);
+        } catch (InterruptedException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
         long used = System.currentTimeMillis() - stamp1;
 
         long successCount = successCounts.stream().mapToLong(AtomicLong::get).sum();
         long failCount = failCounts.stream().mapToLong(AtomicLong::get).sum();
 
-        System.out.printf("%,d in %,d ms; qps = %,d ; success(%,d); fail(%,d) \n", all_count, used,
-                (((long) all_count) * 1000) / used, successCount, failCount);
+        System.out.printf("%,d in %,d ms; qps = %,d ; success(%,d); fail(%,d); concurrency(%,d) \n", //
+                number, used, (((long) number) * 1000) / used, successCount, failCount, concurrency);
 
         Speeder speeder = Speeder.merge(speeders);
         System.out.println();
