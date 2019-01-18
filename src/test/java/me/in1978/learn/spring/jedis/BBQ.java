@@ -246,8 +246,7 @@ public class BBQ<T> implements BlockingQueue<T> {
         if (stopped.get())
             return null;
 
-        Object ret = inner.element();
-
+        Object ret = supplier.get();
         if (ret == FLAG)
             return null;
 
@@ -255,12 +254,11 @@ public class BBQ<T> implements BlockingQueue<T> {
     }
 
     @SuppressWarnings("unchecked")
-    private T retrieveInterruptly(InterruptedSupplier<Object> supplier) {
+    private T retrieveInterruptly(InterruptedSupplier<Object> supplier) throws InterruptedException {
         if (stopped.get())
             return null;
 
-        Object ret = inner.element();
-
+        Object ret = supplier.get();
         if (ret == FLAG)
             return null;
 
