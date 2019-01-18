@@ -10,6 +10,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -21,24 +22,29 @@ import java.util.stream.Stream;
  */
 public class BBQ<T> implements BlockingQueue<T> {
 
+    private static interface InterruptedSupplier<T> {
+        T get() throws InterruptedException;
+    }
+
     private static final Object FLAG = new Object();
     private static Predicate<Object> p_notFlag = o -> o != FLAG;
 
-    private LinkedBlockingQueue<Object> inner;
-    private Iterable<T> src;
-    private AtomicBoolean stopped = new AtomicBoolean(false);
-
-    public static <T> BBQ<T> fromStream(Stream<T> stream, int poolSize) {
-        return fromIterator(stream.iterator(), poolSize);
+    public static <T> BBQ<T> fromIterable(Iterable<T> it, int poolSize) {
+        return new BBQ<>(it, poolSize);
     }
 
     public static <T> BBQ<T> fromIterator(Iterator<T> itr, int poolSize) {
         return fromIterable(Util.iterable(itr), poolSize);
     }
 
-    public static <T> BBQ<T> fromIterable(Iterable<T> it, int poolSize) {
-        return new BBQ<>(it, poolSize);
+    public static <T> BBQ<T> fromStream(Stream<T> stream, int poolSize) {
+        return fromIterator(stream.iterator(), poolSize);
     }
+
+    private LinkedBlockingQueue<Object> inner;
+    private Iterable<T> src;
+
+    private AtomicBoolean stopped = new AtomicBoolean(false);
 
     private BBQ(Iterable<T> src, int poolSize) {
         this.src = src;
@@ -133,15 +139,9 @@ public class BBQ<T> implements BlockingQueue<T> {
         return l2.size();
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public T element() {
-        Object ret = inner.element();
-
-        if (ret == FLAG)
-            return null;
-
-        return (T) ret;
+        return retrieve(this::element);
     }
 
     @Override
@@ -196,37 +196,19 @@ public class BBQ<T> implements BlockingQueue<T> {
         return inner.offer(e, timeout, unit);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public T peek() {
-        Object ret = inner.peek();
-
-        if (ret == FLAG)
-            return null;
-
-        return (T) ret;
+        return retrieve(this::peek);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public T poll() {
-        Object ret = inner.poll();
-
-        if (ret == FLAG)
-            return null;
-
-        return (T) ret;
+        return retrieve(this::poll);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public T poll(long timeout, TimeUnit unit) throws InterruptedException {
-        Object ret = inner.poll(timeout, unit);
-
-        if (ret == FLAG)
-            return null;
-
-        return (T) ret;
+        return retrieveInterruptly(() -> inner.poll(timeout, unit));
     }
 
     @Override
@@ -239,15 +221,9 @@ public class BBQ<T> implements BlockingQueue<T> {
         return inner.remainingCapacity();
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public T remove() {
-        Object ret = inner.remove();
-
-        if (ret == FLAG)
-            return null;
-
-        return (T) ret;
+        return retrieve(this::remove);
     }
 
     @Override
@@ -265,20 +241,40 @@ public class BBQ<T> implements BlockingQueue<T> {
         return inner.retainAll(c);
     }
 
-    @Override
-    public int size() {
-        return inner.size();
-    }
-
     @SuppressWarnings("unchecked")
-    @Override
-    public T take() throws InterruptedException {
-        Object ret = inner.take();
+    private T retrieve(Supplier<T> supplier) {
+        if (stopped.get())
+            return null;
+
+        Object ret = inner.element();
 
         if (ret == FLAG)
             return null;
 
         return (T) ret;
+    }
+
+    @SuppressWarnings("unchecked")
+    private T retrieveInterruptly(InterruptedSupplier<Object> supplier) {
+        if (stopped.get())
+            return null;
+
+        Object ret = inner.element();
+
+        if (ret == FLAG)
+            return null;
+
+        return (T) ret;
+    }
+
+    @Override
+    public int size() {
+        return inner.size();
+    }
+
+    @Override
+    public T take() throws InterruptedException {
+        return retrieveInterruptly(() -> inner.take());
     }
 
     @Override

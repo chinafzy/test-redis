@@ -110,7 +110,6 @@ public class Benchmark2 {
         List<AtomicLong> successCounts = new CopyOnWriteArrayList<>();
         List<AtomicLong> failCounts = new CopyOnWriteArrayList<>();
 
-//        final long[] STOP_RANGE = new long[0];
         final BlockingQueue<long[]> ranges = ranges(number, concurrency * 3);
 
         class TestRedis extends TestTask {
