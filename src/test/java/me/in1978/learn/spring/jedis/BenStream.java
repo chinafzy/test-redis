@@ -3,7 +3,6 @@ package me.in1978.learn.spring.jedis;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
 import java.util.stream.LongStream;
@@ -112,13 +111,6 @@ public class BenStream {
                 .parallel() //
                 .forEach(key -> new Test(key).run()) //
         ).join();
-
-        executor.shutdown();
-        try {
-            executor.awaitTermination(1, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
 
         long used = System.currentTimeMillis() - stamp1;
 
