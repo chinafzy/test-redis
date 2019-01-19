@@ -110,7 +110,8 @@ public class BenStream {
         executor.submit(() -> LongStream.range(0, number) //
                 .mapToObj(Util::key) //
                 .parallel() //
-                .forEach(key -> new Test(key).run()));
+                .forEach(key -> new Test(key).run()) //
+        ).join();
 
         executor.shutdown();
         try {

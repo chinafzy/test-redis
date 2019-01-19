@@ -117,7 +117,7 @@ public class BenStreamBatch {
                 .map(range -> LongStream.range(range[0], range[1]).mapToObj(Util::key)) //
                 .parallel() //
                 .forEach(keys -> new Test(keys).run()) //
-        );
+        ).join();
 
         executor.shutdown();
         try {
