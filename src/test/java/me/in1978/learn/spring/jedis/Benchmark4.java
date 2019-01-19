@@ -9,6 +9,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
 import java.util.stream.LongStream;
+import java.util.stream.Stream;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,7 +24,7 @@ import redis.clients.util.Pool;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest()
-public class Benchmark3 {
+public class Benchmark4 {
 
     @Autowired
     private ApplicationContext spring;
@@ -77,30 +78,35 @@ public class Benchmark3 {
         ThreadLocal<AtomicLong> successCountHolder = buildHolder(AtomicLong::new, successCounts);
 
         class Test implements Runnable {
-            String key;
+            Stream<String> keys;
 
-            public Test(String key) {
-                this.key = key;
+            public Test(Stream<String> keys) {
+                this.keys = keys;
             }
 
             @Override
             public void run() {
                 JedisCommands jedis = jedisHolder.get();
-                long stampx = System.currentTimeMillis();
 
-                try {
-                    jedis.set(key, str);
+                keys.forEach(key -> {
 
-                    int used = (int) (System.currentTimeMillis() - stampx);
-                    speederHolder.get().record(used);
+                    long stampx = System.currentTimeMillis();
 
-                    successCountHolder.get().incrementAndGet();
-                } catch (Throwable tr) {
-                    tr.printStackTrace();
-                    failCountHolder.get().incrementAndGet();
-                } finally {
-                    counter.increase(1);
-                }
+                    try {
+                        jedis.set(key, str);
+
+                        int used = (int) (System.currentTimeMillis() - stampx);
+                        speederHolder.get().record(used);
+
+                        successCountHolder.get().incrementAndGet();
+                    } catch (Throwable tr) {
+                        tr.printStackTrace();
+                        failCountHolder.get().incrementAndGet();
+                    } finally {
+                        counter.increase(1);
+                    }
+                });
+
             }
         }
 
@@ -108,7 +114,11 @@ public class Benchmark3 {
 
         periodPrinter.reset();
         periodPrinter.printHeader();
-        LongStream.range(0, number).mapToObj(l -> String.format("key%09d", l)).forEach(key -> executor.execute(new Test(key)));
+        //        LongStream.range(0, number).mapToObj(l -> String.format("key%09d", l)).forEach(key -> executor.execute(new Test(key)));
+        Util.averageRanges(number, 100) //
+                .map(range -> LongStream.range(range[0], range[1]).mapToObj(l -> String.format("%09d", l))) //
+                .forEach(keys -> executor.submit(new Test(keys))) //
+        ;
 
         executor.shutdown();
         try {

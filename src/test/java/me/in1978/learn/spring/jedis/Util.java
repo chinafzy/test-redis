@@ -1,11 +1,15 @@
 package me.in1978.learn.spring.jedis;
 
 import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 public class Util {
 
@@ -19,6 +23,41 @@ public class Util {
         return buf.toString();
     }
 
+    public static Stream<long[]> averageRanges(long num, int step) {
+        Iterator<long[]> itr = new Iterator<long[]>() {
+            long pos = 0;
+            long[] item;
+
+            @Override
+            public long[] next() {
+                if (!hasNext())
+                    throw new NoSuchElementException();
+
+                try {
+                    return item;
+                } finally {
+                    item = null;
+                }
+            }
+
+            @Override
+            public boolean hasNext() {
+                if (item != null)
+                    return true;
+
+                if (pos >= num)
+                    return false;
+
+                long pos2 = Math.min(pos + step, num);
+                item = new long[] { pos, pos2 };
+                pos = pos2;
+
+                return true;
+            }
+        };
+
+        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(itr, Spliterator.ORDERED), true);
+    }
 
     public static void main(String[] args) throws InterruptedException {
         Stream<String> keys = IntStream.range(0, 1000).mapToObj(i -> String.format("key%10d", i));

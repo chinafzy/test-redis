@@ -272,7 +272,7 @@ public class BBQ<T> implements BlockingQueue<T> {
 
     @Override
     public T take() throws InterruptedException {
-        return retrieveInterruptly(() -> inner.take());
+        return retrieveInterruptly(inner::take);
     }
 
     @Override
