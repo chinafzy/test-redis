@@ -109,6 +109,7 @@ public class BenStream {
         periodPrinter.printHeader();
         executor.submit(() -> LongStream.range(0, number) //
                 .mapToObj(Util::key) //
+                .parallel() //
                 .forEach(key -> new Test(key).run()));
 
         executor.shutdown();
