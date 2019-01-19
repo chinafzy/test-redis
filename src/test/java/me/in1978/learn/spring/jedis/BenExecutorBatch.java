@@ -115,7 +115,7 @@ public class BenExecutorBatch {
         periodPrinter.reset();
         periodPrinter.printHeader();
         //        LongStream.range(0, number).mapToObj(l -> String.format("key%09d", l)).forEach(key -> executor.execute(new Test(key)));
-        Util.averageRanges(number, testConf.getBatchSize()) //
+        Util.averageRanges(number, testConf.getRangeSize()) //
                 .map(range -> LongStream.range(range[0], range[1]).mapToObj(Util::key)) //
                 .forEach(keys -> executor.submit(new Test(keys))) //
         ;

@@ -113,7 +113,7 @@ public class BenStreamBatch {
 
         periodPrinter.reset();
         periodPrinter.printHeader();
-        executor.submit(() -> Util.averageRanges(number, testConf.getBatchSize()) //
+        executor.submit(() -> Util.averageRanges(number, testConf.getRangeSize()) //
                 .map(range -> LongStream.range(range[0], range[1]).mapToObj(Util::key)) //
                 .forEach(keys -> new Test(keys).run()) //
         );

@@ -28,7 +28,7 @@ public class TestConf {
 
     private int summaryStep = 100_000;
     
-    private int batchSize = 10;
+    private int rangeSize = 10;
 
     /**
      * <= 0 means deny.
