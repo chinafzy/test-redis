@@ -6,8 +6,8 @@ wtb:
       min-idle: 20
       
     single: 
-      url : redis://localhost:6379/
-#      url : redis://:GnUNkSzxMy0zbPH0@r-bp16e7dbe47100e4.redis.rds.aliyuncs.com:6379/
+#      url : redis://localhost:6379/
+      url : redis://:GnUNkSzxMy0zbPH0@r-bp124a31fc2890a4.redis.rds.aliyuncs.com:6379/
 
 #    shard:
       urls:
@@ -16,10 +16,10 @@ wtb:
 #        - redis://localhost:8379/
         
   test:
-    number: 8_000_000
-    concurrency: 40
+    number: 4_000_000
+    concurrency: 600
     range-size: 100
-    value-size: 2_00
+    value-size: 1_000
     summary-step: 100_000
  #   summary-speed-step: 200_000
     print-percents: >
