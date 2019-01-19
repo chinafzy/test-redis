@@ -84,6 +84,10 @@ public class Util {
         service.shutdown();
         service.awaitTermination(1, TimeUnit.MINUTES);
     }
+    
+    public static String key(long l) {
+        return String.format("%09d", l);
+    }
 
     public static <T> Iterable<T> iterable(Iterator<T> itr) {
 

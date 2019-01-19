@@ -2,13 +2,12 @@ package me.in1978.learn.spring.jedis;
 
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.ForkJoinPool;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
 import java.util.stream.LongStream;
+import java.util.stream.Stream;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -23,7 +22,7 @@ import redis.clients.util.Pool;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest()
-public class Benchmark3 {
+public class BenStreamBatch {
 
     @Autowired
     private ApplicationContext spring;
@@ -67,7 +66,6 @@ public class Benchmark3 {
         List<AtomicLong> successCounts = new CopyOnWriteArrayList<>();
         List<AtomicLong> failCounts = new CopyOnWriteArrayList<>();
 
-        final ExecutorService executor = executor(concurrency, 3000);
         final String str = Util.buildStr(testConf.getValueSize());
 
         ThreadLocal<JedisCommands> jedisHolder = buildHolder(() -> (JedisCommands) spring
@@ -77,38 +75,48 @@ public class Benchmark3 {
         ThreadLocal<AtomicLong> successCountHolder = buildHolder(AtomicLong::new, successCounts);
 
         class Test implements Runnable {
-            String key;
+            Stream<String> keys;
 
-            public Test(String key) {
-                this.key = key;
+            public Test(Stream<String> keys) {
+                this.keys = keys;
             }
 
             @Override
             public void run() {
                 JedisCommands jedis = jedisHolder.get();
-                long stampx = System.currentTimeMillis();
 
-                try {
-                    jedis.set(key, str);
+                keys.forEach(key -> {
 
-                    int used = (int) (System.currentTimeMillis() - stampx);
-                    speederHolder.get().record(used);
+                    long stampx = System.currentTimeMillis();
 
-                    successCountHolder.get().incrementAndGet();
-                } catch (Throwable tr) {
-                    tr.printStackTrace();
-                    failCountHolder.get().incrementAndGet();
-                } finally {
-                    counter.increase(1);
-                }
+                    try {
+                        jedis.set(key, str);
+
+                        int used = (int) (System.currentTimeMillis() - stampx);
+                        speederHolder.get().record(used);
+
+                        successCountHolder.get().incrementAndGet();
+                    } catch (Throwable tr) {
+                        tr.printStackTrace();
+                        failCountHolder.get().incrementAndGet();
+                    } finally {
+                        counter.increase(1);
+                    }
+                });
+
             }
         }
+
+        ForkJoinPool executor = new ForkJoinPool(testConf.getConcurrency());
 
         long stamp1 = System.currentTimeMillis();
 
         periodPrinter.reset();
         periodPrinter.printHeader();
-        LongStream.range(0, number).mapToObj(l -> String.format("key%09d", l)).forEach(key -> executor.execute(new Test(key)));
+        executor.submit(() -> Util.averageRanges(number, testConf.getBatchSize()) //
+                .map(range -> LongStream.range(range[0], range[1]).mapToObj(Util::key)) //
+                .forEach(keys -> new Test(keys).run()) //
+        );
 
         executor.shutdown();
         try {
@@ -130,19 +138,6 @@ public class Benchmark3 {
         System.out.println("Percentage of the requests served within a certain time (ms)");
         speeder.printSummary(System.out, percents);
 
-    }
-
-    private static ExecutorService executor(int concurrency, int queueSize) {
-        LinkedBlockingQueue<Runnable> q = new LinkedBlockingQueue<>(queueSize);
-        ThreadPoolExecutor ret = new ThreadPoolExecutor(concurrency, concurrency, 1, TimeUnit.MINUTES, q, (r, exe) -> {
-            try {
-                q.put(r);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-        });
-
-        return ret;
     }
 
     private static <T> ThreadLocal<T> buildHolder(Supplier<T> supplier, List<T> list) {

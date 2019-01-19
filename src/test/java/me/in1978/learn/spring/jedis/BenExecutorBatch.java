@@ -24,7 +24,7 @@ import redis.clients.util.Pool;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest()
-public class Benchmark4 {
+public class BenExecutorBatch {
 
     @Autowired
     private ApplicationContext spring;
@@ -115,8 +115,8 @@ public class Benchmark4 {
         periodPrinter.reset();
         periodPrinter.printHeader();
         //        LongStream.range(0, number).mapToObj(l -> String.format("key%09d", l)).forEach(key -> executor.execute(new Test(key)));
-        Util.averageRanges(number, 100) //
-                .map(range -> LongStream.range(range[0], range[1]).mapToObj(l -> String.format("%09d", l))) //
+        Util.averageRanges(number, testConf.getBatchSize()) //
+                .map(range -> LongStream.range(range[0], range[1]).mapToObj(Util::key)) //
                 .forEach(keys -> executor.submit(new Test(keys))) //
         ;
 

@@ -28,7 +28,7 @@ import redis.clients.util.Pool;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest()
-public class Benchmark2 {
+public class BenBQRange {
 
     @Autowired
     private ApplicationContext spring;
@@ -144,7 +144,7 @@ public class Benchmark2 {
 
             private void testRange(long[] range) {
                 LongStream.range(range[0], range[1]).forEach(l -> {
-                    String key = String.format("key_%09d", l);
+                    String key = Util.key(l);
                     long stampx = System.currentTimeMillis();
 
                     try {

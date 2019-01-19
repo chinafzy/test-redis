@@ -27,7 +27,12 @@ public class TestConf {
     private int valueSize = 1024;
 
     private int summaryStep = 100_000;
+    
+    private int batchSize = 10;
 
+    /**
+     * <= 0 means deny.
+     */
     private int summarySpeedStep = 0;
 
     private double[] printPercents = { .5, .75, .8, .9, .95, .99, .995, .999, .9999, .99999, 1 };
