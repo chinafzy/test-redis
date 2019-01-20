@@ -56,7 +56,7 @@ public class Util {
             }
         };
 
-        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(itr, Spliterator.ORDERED), true);
+        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(itr, Spliterator.ORDERED), false);
     }
 
     public static void main(String[] args) throws InterruptedException {

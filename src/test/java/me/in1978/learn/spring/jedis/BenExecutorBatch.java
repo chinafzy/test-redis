@@ -71,8 +71,8 @@ public class BenExecutorBatch {
         final ExecutorService executor = executor(concurrency, 3000);
         final String str = Util.buildStr(testConf.getValueSize());
 
-        ThreadLocal<JedisCommands> jedisHolder = buildHolder(() -> (JedisCommands) spring
-                .getBean(testConf.shardMode() ? Conf.CMDS_SHARD : Conf.CMDS_SINGLE, Pool.class).getResource(), null);
+        ThreadLocal<JedisCommands> jedisHolder = ThreadLocal.withInitial(() -> (JedisCommands) spring
+                .getBean(testConf.shardMode() ? Conf.CMDS_SHARD : Conf.CMDS_SINGLE, Pool.class).getResource());
         ThreadLocal<Speeder> speederHolder = buildHolder(Speeder::new, speeders);
         ThreadLocal<AtomicLong> failCountHolder = buildHolder(AtomicLong::new, failCounts);
         ThreadLocal<AtomicLong> successCountHolder = buildHolder(AtomicLong::new, successCounts);
@@ -162,8 +162,7 @@ public class BenExecutorBatch {
             @Override
             protected T initialValue() {
                 T ret = supplier.get();
-                if (list != null)
-                    list.add(ret);
+                list.add(ret);
 
                 return ret;
             }
