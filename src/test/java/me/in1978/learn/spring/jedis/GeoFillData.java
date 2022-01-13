@@ -9,8 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import redis.clients.jedis.commands.BasicCommands;
-import redis.clients.jedis.commands.JedisCommands;
+import redis.clients.jedis.BasicCommands;
+import redis.clients.jedis.JedisCommands;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest()
