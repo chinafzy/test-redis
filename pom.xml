@@ -62,7 +62,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
-                    <argLine>-Xms1G -Xmx1G -XX:+UseG1GC</argLine>
+                    <argLine>-Xms3G -Xmx3G -XX:+UseG1GC</argLine>
                 </configuration>
             </plugin>
         </plugins>
