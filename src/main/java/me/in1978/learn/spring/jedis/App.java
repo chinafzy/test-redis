@@ -5,8 +5,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 
-import redis.clients.jedis.commands.JedisCommands;
-import redis.clients.jedis.util.Pool;
+import redis.clients.jedis.JedisCommands;
+import redis.clients.util.Pool;
 
 /**
  * Hello world!
