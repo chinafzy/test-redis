@@ -52,8 +52,8 @@ public class Benchmark {
             System.out.println("Single Mode: " + testConf.getSingleUrl());
         }
 
-        System.out.printf("number: %,d; concurrency: %d; value_size: %,d; \n", //
-                all_count, task_count, testConf.getValueSize());
+        System.out.printf("number: %,d; concurrency: %d; value_size: %,d; \n",
+            all_count, task_count, testConf.getValueSize());
 
         PeriodPrinter periodPrinter = new PeriodPrinter(testConf.getSummaryStep());
 
@@ -73,7 +73,7 @@ public class Benchmark {
             try {
 
                 final JedisCommands cmds = (JedisCommands) spring
-                        .getBean(testConf.shardMode() ? Conf.CMDS_SHARD : Conf.CMDS_SINGLE, Pool.class).getResource();
+                    .getBean(testConf.shardMode() ? Conf.CMDS_SHARD : Conf.CMDS_SINGLE, Pool.class).getResource();
 
                 final long startPos = range[0], endPos = range[1];
                 final Speeder speeder = new Speeder();
@@ -98,8 +98,8 @@ public class Benchmark {
                     long stampx = System.currentTimeMillis();
 
                     try {
-//                        cmds.set(key, str);
-                        //                    cmds.get(key);
+                        cmds.set(key, str);
+                        cmds.get(key);
 
                         int used = (int) (System.currentTimeMillis() - stampx);
                         speeder.record(used);
@@ -131,7 +131,7 @@ public class Benchmark {
         long failCount = failCounts.stream().mapToLong(AtomicLong::get).sum();
 
         System.out.printf("%,d in %,d ms; qps = %,d ; success(%,d); fail(%,d) \n", all_count, used,
-                (((long) all_count) * 1000) / used, successCount, failCount);
+            (((long) all_count) * 1000) / used, successCount, failCount);
 
         Speeder speeder = Speeder.merge(speeders);
         System.out.println();
