@@ -9,7 +9,7 @@ wtb:
     single: 
 #      url : redis://localhost:88/
 #      url : redis://localhost:6379
-      url: redis://Mt9bJb6hyLjwYinh~:192.168.100.112:8635
+      url: redis://:Mt9bJb6hyLjwYinh~@192.168.100.112:8635
       
 #      url : redis://:GnUNkSzxMy0zbPH0@r-bp124a31fc2890a4.redis.rds.aliyuncs.com:6379/
 
