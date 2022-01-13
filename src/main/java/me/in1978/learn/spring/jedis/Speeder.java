@@ -3,9 +3,11 @@ package me.in1978.learn.spring.jedis;
 import java.io.PrintStream;
 import java.util.Collection;
 import java.util.Random;
+import java.util.Spliterators;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
+import java.util.stream.StreamSupport;
 
 /**
  * 记速器，记录一次次的速度消耗，生成统计结果汇总。
@@ -36,22 +38,23 @@ public class Speeder {
         }
     }
 
-    public static Speeder merge(Collection<Speeder> speeders) {
+    public static Speeder merge(Iterable<Speeder> speeders) {
 
-        return speeders.stream().reduce(new Speeder(), (dest, speeder) -> {
+        return StreamSupport.stream(Spliterators.spliteratorUnknownSize(speeders.iterator(), 0), false) //
+                .reduce(new Speeder(), (dest, speeder) -> {
 
-            speeder.records.entrySet().forEach(ent -> {
-                Integer k = ent.getKey();
-                AtomicInteger v = dest.records.get(k);
-                if (v == null) {
-                    dest.records.put(k, v = new AtomicInteger());
-                }
+                    speeder.records.entrySet().forEach(ent -> {
+                        Integer k = ent.getKey();
+                        AtomicInteger v = dest.records.get(k);
+                        if (v == null) {
+                            dest.records.put(k, v = new AtomicInteger());
+                        }
 
-                v.addAndGet(ent.getValue().get());
-            });
+                        v.addAndGet(ent.getValue().get());
+                    });
 
-            return dest;
-        });
+                    return dest;
+                });
     }
 
     public static void main(String[] args) {

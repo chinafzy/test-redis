@@ -5,6 +5,8 @@ import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 
+import redis.clients.jedis.Jedis;
+
 @Component
 public class Task1 {
 
@@ -13,8 +15,13 @@ public class Task1 {
 
 //    @Autowired
     public void needTlp(StringRedisTemplate tpl) {
+        Jedis j = null;
+        
+//        j.z
+        
         System.out.println(tpl);
         tpl.opsForValue().get("123");
+//        tpl.boundZSetOps("").ran
 
 //        for (int i = 0; i < 100; i++) {
 //

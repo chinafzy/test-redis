@@ -5,19 +5,22 @@ wtb:
       max-total: 1000
       min-idle: 20
       
+      
     single: 
-#      url : redis://localhost:6379/
-      url : redis://:GnUNkSzxMy0zbPH0@r-bp124a31fc2890a4.redis.rds.aliyuncs.com:6379/
+#      url : redis://localhost:88/
+      url : redis://localhost:6379/
+      
+#      url : redis://:GnUNkSzxMy0zbPH0@r-bp124a31fc2890a4.redis.rds.aliyuncs.com:6379/
 
 #    shard:
-      urls:
-        - redis://localhost:6379/
-        - redis://localhost:7379/
+#      urls:
+#        - redis://localhost:6379/
+#        - redis://localhost:7379/
 #        - redis://localhost:8379/
         
   test:
-    number: 4_000_000
-    concurrency: 600
+    number: 400_000
+    concurrency: 10
     range-size: 100
     value-size: 1_000
     summary-step: 100_000

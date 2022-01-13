@@ -1,15 +1,17 @@
 package me.in1978.learn.spring.jedis;
 
+import java.util.function.LongConsumer;
+
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public class PeriodPrinter implements Counter.Notifier {
+public class PeriodPrinter implements LongConsumer {
     final int step;
 
     long last, start;
 
     @Override
-    public void notify(long count) {
+    public void accept(long count) {
         if (count % step != 0)
             return;
 

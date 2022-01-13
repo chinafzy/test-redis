@@ -19,8 +19,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.StringUtils;
 
-import redis.clients.jedis.JedisCommands;
-import redis.clients.util.Pool;
+import redis.clients.jedis.commands.JedisCommands;
+import redis.clients.jedis.util.Pool;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest()
@@ -114,7 +114,6 @@ public class BenExecutorBatch {
 
         periodPrinter.reset();
         periodPrinter.printHeader();
-        //        LongStream.range(0, number).mapToObj(l -> String.format("key%09d", l)).forEach(key -> executor.execute(new Test(key)));
         Util.averageRanges(number, testConf.getRangeSize()) //
                 .map(range -> LongStream.range(range[0], range[1]).mapToObj(Util::key)) //
                 .forEach(keys -> executor.submit(new Test(keys))) //

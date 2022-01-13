@@ -21,8 +21,8 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.util.StringUtils;
 
-import redis.clients.jedis.JedisCommands;
-import redis.clients.util.Pool;
+import redis.clients.jedis.commands.JedisCommands;
+import redis.clients.jedis.util.Pool;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest()
@@ -98,7 +98,7 @@ public class Benchmark {
                     long stampx = System.currentTimeMillis();
 
                     try {
-                        cmds.set(key, str);
+//                        cmds.set(key, str);
                         //                    cmds.get(key);
 
                         int used = (int) (System.currentTimeMillis() - stampx);
@@ -118,6 +118,7 @@ public class Benchmark {
 
         long stamp1 = System.currentTimeMillis();
 
+        periodPrinter.printHeader();
         periodPrinter.reset();
         kickoff.countDown();
 
