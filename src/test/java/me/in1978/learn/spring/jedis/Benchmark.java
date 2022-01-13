@@ -99,7 +99,7 @@ public class Benchmark {
 
                     try {
                         cmds.set(key, str);
-                        cmds.get(key);
+//                        cmds.get(key);
 
                         int used = (int) (System.currentTimeMillis() - stampx);
                         speeder.record(used);
