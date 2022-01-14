@@ -12,7 +12,7 @@ import java.util.stream.StreamSupport;
 /**
  * 记速器，记录一次次的速度消耗，生成统计结果汇总。
  * <br />
- * 注意：本身是支持线程安全的，但是在高并发下建议使用每个线程一个实例，然后合并{@link #merge(Collection)}成一个。这样会从数据模型上降低竞态状态。
+ * 注意：本身是支持线程安全的，但是在高并发下建议使用每个线程一个实例，然后合并{@link #merge(Iterable speeders)}成一个。这样会从数据模型上降低竞态状态。
  * 
  * @author zeyufang
  */
