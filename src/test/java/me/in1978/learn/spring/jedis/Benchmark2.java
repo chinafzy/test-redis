@@ -90,23 +90,25 @@ public class Benchmark2 {
 
                 long[] range;
                 while ((range = taskAllocator.allocate()) != null) {
-                    String key = KeysMaker.onKey("key_", 0, testConf.getRangeSize());
+                    for (long l = range[0]; l < range[1]; l++) {
+                        String key = KeysMaker.onKey("key_", 0, testConf.getRangeSize());
 
-                    long stamp1 = System.currentTimeMillis();
+                        long stamp1 = System.currentTimeMillis();
 
-                    try {
-                        cmds.set(key, str);
-                        cmds.get(key);
+                        try {
+                            cmds.set(key, str);
+                            cmds.get(key);
 
-                        successCount.incrementAndGet();
-                    } catch (Throwable tr) {
-                        failCount.incrementAndGet();
-                    } finally {
-                        int used = (int) (System.currentTimeMillis() - stamp1);
-                        speeder.record(used);
+                            successCount.incrementAndGet();
+                        } catch (Throwable tr) {
+                            failCount.incrementAndGet();
+                        } finally {
+                            int used = (int) (System.currentTimeMillis() - stamp1);
+                            speeder.record(used);
+                        }
+
+                        counter.increase(1);
                     }
-
-                    counter.increase(1);
                 }
 
                 //                } catch (Throwable tr) {
