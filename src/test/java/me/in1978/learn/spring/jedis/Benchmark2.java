@@ -97,7 +97,7 @@ public class Benchmark2 {
 
                         try {
                             cmds.set(key, str);
-                            cmds.get(key);
+//                            cmds.get(key);
 
                             successCount.incrementAndGet();
                         } catch (Throwable tr) {
